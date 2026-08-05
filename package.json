@@ -1,0 +1,10 @@
+{
+  "name": "curl-builder",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "prestart": "npm install --no-audit --no-fund",
+    "start": "node --env-file=.env curl-builder/server.js"
+  }
+}
