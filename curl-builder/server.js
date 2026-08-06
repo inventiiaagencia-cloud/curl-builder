@@ -855,12 +855,6 @@ function buildRequestPlan(endpoint, environment, overrides = {}) {
   if (!(environment.apiKey || "").trim() && JSON.stringify(endpoint.headersTemplate || {}).includes("api_key")) {
     warnings.push("Este endpoint espera api_key, mas o ambiente nao tem chave cadastrada.");
   }
-  if (endpoint.product === "evo_crm") {
-    const host = hostnameFromUrl(environment.baseUrl);
-    if (host && host !== "api.evoai.app" && !host.endsWith(".api.evoai.app")) {
-      warnings.push(`Evo CRM oficial usa a API em api.evoai.app; o ambiente atual aponta para ${host}.`);
-    }
-  }
   if (/\{\{\s*[a-zA-Z0-9_.-]+\s*\}\}|\{[a-zA-Z0-9_.-]+\}/.test(curl)) {
     warnings.push("Ainda existem placeholders no curl gerado.");
   }
