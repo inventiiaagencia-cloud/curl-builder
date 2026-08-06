@@ -15,3 +15,4 @@ build/
 coverage/
 curl-builder/.runtime-state.json
 curl-builder/.official-catalog-cache.json
+.mcp.json
