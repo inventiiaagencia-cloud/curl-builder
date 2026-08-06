@@ -630,6 +630,44 @@ h3 {
   font-size: 1.3rem;
 }
 
+.builder-status {
+  margin-top: 0.6rem;
+  padding: 0.5rem 0.75rem;
+  border-radius: var(--radius-sm);
+  font-size: 0.82rem;
+  font-weight: 600;
+  min-width: 0;
+  transition: all 0.2s ease;
+}
+
+.builder-status:empty {
+  display: none;
+}
+
+.builder-status.success {
+  background: rgba(52, 211, 153, 0.12);
+  border: 1px solid rgba(52, 211, 153, 0.3);
+  color: var(--success);
+}
+
+.builder-status.error {
+  background: rgba(251, 113, 133, 0.12);
+  border: 1px solid rgba(251, 113, 133, 0.3);
+  color: var(--danger);
+}
+
+.builder-status.loading {
+  background: rgba(56, 189, 248, 0.12);
+  border: 1px solid rgba(56, 189, 248, 0.3);
+  color: var(--accent);
+}
+
+.builder-status.info {
+  background: rgba(251, 191, 36, 0.12);
+  border: 1px solid rgba(251, 191, 36, 0.3);
+  color: var(--warning);
+}
+
 .builder-params {
   display: grid;
   gap: 0.65rem;

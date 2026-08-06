@@ -53,8 +53,23 @@
     testSummary: document.getElementById("testSummary"),
     testMeta: document.getElementById("testMeta"),
     testBody: document.getElementById("testBody"),
-    historyList: document.getElementById("historyList")
+    historyList: document.getElementById("historyList"),
+    builderStatus: document.getElementById("builderStatus")
   };
+
+  let statusTimer = null;
+
+  function setBuilderStatus(text, kind = "info") {
+    clearTimeout(statusTimer);
+    els.builderStatus.textContent = text;
+    els.builderStatus.className = "builder-status " + kind;
+    if (kind !== "loading") {
+      statusTimer = setTimeout(() => {
+        els.builderStatus.textContent = "";
+        els.builderStatus.className = "builder-status";
+      }, 5000);
+    }
+  }
 
   function escapeHtml(value) {
     return String(value ?? "")
@@ -304,6 +319,8 @@
       els.testMeta.textContent = "-";
       els.testBody.textContent = "-";
       els.builderWarnings.textContent = "";
+      els.builderStatus.textContent = "";
+      els.builderStatus.className = "builder-status";
       return;
     }
 
@@ -366,8 +383,9 @@
     state.lastCompose = data;
     els.generatedCurl.textContent = data.curl || "-";
     els.builderWarnings.textContent = (data.warnings || []).join(" | ");
-    // Avisos sao informativos (amarelo); apenas falhas reais sao vermelhas.
-    setBanner((data.warnings || []).length ? data.warnings.join(" | ") : "Curl gerado com sucesso.", (data.warnings || []).length ? "info" : "success");
+    const hasWarnings = (data.warnings || []).length;
+    setBanner(hasWarnings ? data.warnings.join(" | ") : "Curl gerado com sucesso.", hasWarnings ? "info" : "success");
+    setBuilderStatus(hasWarnings ? data.warnings.join(" | ") : "✓ Curl gerado com sucesso!", hasWarnings ? "info" : "success");
   }
 
   function renderTestResult(data) {
@@ -380,6 +398,7 @@
     });
     els.testBody.textContent = prettyJson(data.response?.body ?? data.errorMessage ?? "-");
     setBanner(data.ok ? "Teste executado com sucesso." : (data.errorMessage || "Falha no teste."), data.ok ? "success" : "error");
+    setBuilderStatus(data.ok ? `✓ Teste concluído - HTTP ${data.response?.statusCode || 0} em ${data.durationMs}ms` : `✗ ${data.errorMessage || "Falha no teste"}`, data.ok ? "success" : "error");
   }
 
   async function refreshBootstrap() {
@@ -414,6 +433,7 @@
 
   async function generatePreview() {
     if (!state.selectedEndpointId) return;
+    setBuilderStatus("⏳ Gerando curl...", "loading");
     const data = await api("/api/compose", {
       method: "POST",
       body: JSON.stringify(collectBuilderPayload())
@@ -424,9 +444,11 @@
   async function testCurl() {
     if (!state.selectedEndpointId) {
       setBanner("Escolha um endpoint antes de testar.", "error");
+      setBuilderStatus("✗ Escolha um endpoint antes de testar", "error");
       return;
     }
     els.testSummary.textContent = "Executando...";
+    setBuilderStatus("⏳ Testando requisição...", "loading");
     const data = await api("/api/test", {
       method: "POST",
       body: JSON.stringify(collectBuilderPayload())
@@ -468,6 +490,7 @@
     const curl = state.lastCompose?.curl;
     if (!curl) {
       setBanner("Nenhum curl gerado para copiar. Escolha um endpoint primeiro.", "error");
+      setBuilderStatus("✗ Nenhum curl gerado para copiar", "error");
       return;
     }
 
@@ -488,6 +511,7 @@
         : "Nao foi possivel copiar automaticamente; selecione o texto do curl e copie manualmente.",
       copied ? "success" : "error"
     );
+    setBuilderStatus(copied ? "✓ Curl copiado para a área de transferência!" : "✗ Não foi possível copiar automaticamente", copied ? "success" : "error");
   }
 
   function renderEnvironmentForm(env) {
