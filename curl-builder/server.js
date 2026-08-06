@@ -144,7 +144,9 @@ function isTransportFailure(error) {
 
 async function sendFile(res, filePath, contentType) {
   const content = await readFile(filePath, "utf8");
-  sendText(res, 200, content, contentType);
+  // Sem cache: garante que o navegador sempre carregue a versao nova do app.
+  res.writeHead(200, { "Content-Type": contentType, "Cache-Control": "no-cache" });
+  res.end(content);
 }
 
 async function readJsonBody(req) {
