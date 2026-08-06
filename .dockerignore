@@ -4,3 +4,6 @@ node_modules
 *.tmp
 *.swp
 README-old.md
+.env
+.env.*
+!.env.example
