@@ -30,6 +30,11 @@ const OFFICIAL_PRODUCT_PREFIXES = [
   { match: /\/Evo-Auth-Service\//i, product: "evo_crm" }
 ];
 const LOCAL_RUNTIME_STATE_FILE = resolveRuntimeStateFile();
+const OFFICIAL_CATALOG_CACHE_FILE = path.join(__dirname, ".official-catalog-cache.json");
+const OFFICIAL_CATALOG_CACHE_TTL_MS = 24 * 60 * 60 * 1000; // 24h
+const OFFICIAL_CATALOG_SYNC_BUDGET_MS = 10000; // orcamento total de sincronizacao a frio
+const OFFICIAL_CATALOG_FETCH_TIMEOUT_MS = 10000;
+const OFFICIAL_CATALOG_CONCURRENCY = 6;
 
 let officialCatalogCache = null;
 let officialCatalogPromise = null;
@@ -502,36 +507,134 @@ function parseYamlEndpoints(yamlText, specUrl) {
   });
 }
 
+async function readOfficialCatalogCache() {
+  try {
+    const raw = await readFile(OFFICIAL_CATALOG_CACHE_FILE, "utf8");
+    const parsed = JSON.parse(raw);
+    if (Array.isArray(parsed?.endpoints)) {
+      return { endpoints: parsed.endpoints, fetchedAt: Number(parsed.fetchedAt) || 0 };
+    }
+  } catch {
+    // Cache ausente ou invalido; segue sem cache.
+  }
+  return null;
+}
+
+async function writeOfficialCatalogCache(endpoints, fresh = true) {
+  try {
+    await writeFile(
+      OFFICIAL_CATALOG_CACHE_FILE,
+      JSON.stringify({ fetchedAt: fresh ? Date.now() : 0, endpoints }, null, 2),
+      "utf8"
+    );
+  } catch {
+    // Cache em disco eh best-effort.
+  }
+}
+
+function fetchSpecsInParallel(specUrls, { startedAt, budgetMs }) {
+  let nextIndex = 0;
+  const collected = [];
+
+  async function worker() {
+    while (nextIndex < specUrls.length) {
+      if (Date.now() - startedAt > budgetMs) return;
+      const specUrl = specUrls[nextIndex];
+      nextIndex += 1;
+      try {
+        const yamlText = await fetchText(specUrl, OFFICIAL_CATALOG_FETCH_TIMEOUT_MS);
+        collected.push(...parseYamlEndpoints(yamlText, specUrl));
+      } catch {
+        // Spec indisponivel; segue para a proxima.
+      }
+    }
+  }
+
+  const workers = Array.from(
+    { length: Math.min(OFFICIAL_CATALOG_CONCURRENCY, Math.max(specUrls.length, 1)) },
+    () => worker()
+  );
+  return Promise.all(workers).then(() => ({
+    endpoints: collected,
+    // true apenas se TODAS as specs foram processadas (orcamento nao cortou a sincronizacao).
+    complete: nextIndex >= specUrls.length
+  }));
+}
+
+async function syncOfficialCatalog() {
+  const startedAt = Date.now();
+  const llmsText = await fetchText(`${DOCS_BASE_URL}/llms.txt`, OFFICIAL_CATALOG_FETCH_TIMEOUT_MS);
+  const specUrls = parseOfficialSpecUrls(llmsText).filter((url) => productFromSpecUrl(url));
+  const { endpoints: fetchedEndpoints, complete } = await fetchSpecsInParallel(specUrls, {
+    startedAt,
+    budgetMs: OFFICIAL_CATALOG_SYNC_BUDGET_MS
+  });
+
+  const entriesByKey = new Map();
+  for (const endpoint of fetchedEndpoints) {
+    const key = `${endpoint.product}::${endpoint.method}::${endpoint.path}`;
+    if (!entriesByKey.has(key)) entriesByKey.set(key, endpoint);
+  }
+
+  return {
+    complete,
+    endpoints: [...entriesByKey.values()].sort((a, b) => {
+      const byProduct = a.product.localeCompare(b.product);
+      if (byProduct !== 0) return byProduct;
+      const byPath = a.path.localeCompare(b.path);
+      if (byPath !== 0) return byPath;
+      return a.method.localeCompare(b.method);
+    })
+  };
+}
+
+function refreshOfficialCatalogInBackground() {
+  if (officialCatalogPromise) return officialCatalogPromise;
+  officialCatalogPromise = (async () => {
+    try {
+      const result = await syncOfficialCatalog();
+      officialCatalogCache = result.endpoints;
+      await writeOfficialCatalogCache(result.endpoints, result.complete);
+      return result.endpoints;
+    } catch {
+      if (!Array.isArray(officialCatalogCache)) officialCatalogCache = [];
+      return officialCatalogCache;
+    } finally {
+      officialCatalogPromise = null;
+    }
+  })();
+  return officialCatalogPromise;
+}
+
 async function loadOfficialCatalog() {
   if (Array.isArray(officialCatalogCache)) return officialCatalogCache;
   if (officialCatalogPromise) return officialCatalogPromise;
 
+  const cached = await readOfficialCatalogCache();
+  // Re-checa apos o await para evitar corrida entre requisicoes concorrentes.
+  if (Array.isArray(officialCatalogCache)) return officialCatalogCache;
+  if (officialCatalogPromise) return officialCatalogPromise;
+
+  if (cached && Array.isArray(cached.endpoints)) {
+    if (Date.now() - cached.fetchedAt < OFFICIAL_CATALOG_CACHE_TTL_MS) {
+      // Cache fresco: resposta instantanea, sem rede.
+      officialCatalogCache = cached.endpoints;
+      return officialCatalogCache;
+    }
+    // Cache expirado ou parcial (fetchedAt 0): usa o cache existente
+    // enquanto a sincronizacao completa roda em background.
+    officialCatalogCache = cached.endpoints;
+    refreshOfficialCatalogInBackground().catch(() => {});
+    return officialCatalogCache;
+  }
+
+  // Primeira execucao (sem cache): sincroniza com orcamento de tempo.
   officialCatalogPromise = (async () => {
     try {
-      const llmsText = await fetchText(`${DOCS_BASE_URL}/llms.txt`);
-      const specUrls = parseOfficialSpecUrls(llmsText).filter((url) => productFromSpecUrl(url));
-      const entriesByKey = new Map();
-
-      for (const specUrl of specUrls) {
-        try {
-          const yamlText = await fetchText(specUrl);
-          for (const endpoint of parseYamlEndpoints(yamlText, specUrl)) {
-            const key = `${endpoint.product}::${endpoint.method}::${endpoint.path}`;
-            if (!entriesByKey.has(key)) entriesByKey.set(key, endpoint);
-          }
-        } catch {
-          continue;
-        }
-      }
-
-      officialCatalogCache = [...entriesByKey.values()].sort((a, b) => {
-        const byProduct = a.product.localeCompare(b.product);
-        if (byProduct !== 0) return byProduct;
-        const byPath = a.path.localeCompare(b.path);
-        if (byPath !== 0) return byPath;
-        return a.method.localeCompare(b.method);
-      });
-      return officialCatalogCache;
+      const result = await syncOfficialCatalog();
+      officialCatalogCache = result.endpoints;
+      await writeOfficialCatalogCache(result.endpoints, result.complete);
+      return result.endpoints;
     } catch {
       officialCatalogCache = [];
       return officialCatalogCache;
@@ -539,7 +642,6 @@ async function loadOfficialCatalog() {
       officialCatalogPromise = null;
     }
   })();
-
   return officialCatalogPromise;
 }
 
@@ -892,11 +994,20 @@ async function loadWorkspace() {
           })
     );
 
+    const warnings = [];
+    if (environmentResult.table === "api_profiles") {
+      warnings.push("Usando tabela legada api_profiles para ambientes.");
+    }
+    const missingTables = [];
+    if (!environmentResult.table) missingTables.push("environments");
+    if (!historyResult.table) missingTables.push("curl_history");
+    if (missingTables.length) {
+      warnings.push(`Conectado ao Supabase, mas faltam as tabelas ${missingTables.join(" e ")}. Rode o supabase-schema.sql no SQL editor.`);
+    }
+
     return {
       configured: true,
-      warnings: environmentResult.table === "api_profiles"
-        ? ["Usando tabela legada api_profiles para ambientes."]
-        : [],
+      warnings,
       environments: mergedEnvironments,
       endpoints,
       history: mergedHistory,

@@ -442,10 +442,51 @@
     }, 150);
   }
 
+  function copyTextWithFallback(text) {
+    const textarea = document.createElement("textarea");
+    textarea.value = text;
+    textarea.setAttribute("readonly", "");
+    textarea.style.position = "fixed";
+    textarea.style.left = "-9999px";
+    textarea.style.opacity = "0";
+    document.body.appendChild(textarea);
+    textarea.focus();
+    textarea.select();
+    textarea.setSelectionRange(0, textarea.value.length);
+    let copied = false;
+    try {
+      copied = document.execCommand("copy");
+    } catch {
+      copied = false;
+    }
+    textarea.remove();
+    return copied;
+  }
+
   async function copyCurl() {
-    if (!state.lastCompose?.curl) return;
-    await navigator.clipboard.writeText(state.lastCompose.curl);
-    setBanner("Curl copiado.", "success");
+    const curl = state.lastCompose?.curl;
+    if (!curl) {
+      setBanner("Nenhum curl gerado para copiar. Escolha um endpoint primeiro.", "error");
+      return;
+    }
+
+    let copied = false;
+    if (navigator.clipboard?.writeText) {
+      try {
+        await navigator.clipboard.writeText(curl);
+        copied = true;
+      } catch {
+        copied = false;
+      }
+    }
+    if (!copied) copied = copyTextWithFallback(curl);
+
+    setBanner(
+      copied
+        ? "Curl copiado."
+        : "Nao foi possivel copiar automaticamente; selecione o texto do curl e copie manualmente.",
+      copied ? "success" : "error"
+    );
   }
 
   function renderEnvironmentForm(env) {
