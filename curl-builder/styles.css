@@ -235,7 +235,6 @@ h3 {
   text-align: center;
   transition: border-color 0.2s ease, transform 0.2s ease;
   min-width: 0;
-  overflow: hidden;
 }
 
 .stat:hover {
@@ -441,7 +440,6 @@ h3 {
   padding: 0.85rem;
   transition: border-color 0.18s ease, transform 0.18s ease, background 0.18s ease;
   min-width: 0;
-  overflow: hidden;
 }
 
 .list-item {
@@ -468,7 +466,6 @@ h3 {
   cursor: pointer;
   background: var(--panel-3);
   border-radius: 13px;
-  overflow: hidden;
 }
 
 
@@ -596,7 +593,6 @@ h3 {
   min-width: 0;
   position: relative;
   z-index: 1;
-  overflow: hidden;
 }
 
 .results {
@@ -608,7 +604,6 @@ h3 {
 
 .builder-view {
   min-width: 0;
-  overflow: hidden;
 }
 
 .builder-view.hidden {
@@ -703,7 +698,6 @@ h3 {
   display: grid;
   gap: 0.45rem;
   min-width: 0;
-  overflow: hidden;
 }
 
 .history-item:hover {
