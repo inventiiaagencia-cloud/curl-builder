@@ -854,9 +854,8 @@ function buildRequestPlan(endpoint, environment, overrides = {}) {
   });
 
   const warnings = [];
-  if (!(environment.apiKey || "").trim() && JSON.stringify(endpoint.headersTemplate || {}).includes("api_key")) {
-    warnings.push("Este endpoint espera api_key, mas o ambiente nao tem chave cadastrada.");
-  }
+  // Aviso de api_key removido: sem chave cadastrada o header simplesmente
+  // nao e emitido no curl (buildCurlCommand ignora valores vazios).
   if (/\{\{\s*[a-zA-Z0-9_.-]+\s*\}\}|\{[a-zA-Z0-9_.-]+\}/.test(curl)) {
     warnings.push("Ainda existem placeholders no curl gerado.");
   }

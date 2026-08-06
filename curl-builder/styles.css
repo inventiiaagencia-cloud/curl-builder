@@ -25,6 +25,12 @@
   box-sizing: border-box;
 }
 
+/* Classe utilitaria de exibicao — SEM ela a mensagem "Escolha um endpoint..."
+   nunca era escondida e ficava sobreposta ao painel do gerador. */
+.hidden {
+  display: none !important;
+}
+
 html {
   scroll-behavior: smooth;
 }
@@ -346,6 +352,12 @@ h3 {
   align-items: start;
 }
 
+/* Anti-overflow: impede que conteudo largo empurre ou atravesse as colunas. */
+.grid > *,
+.builder-grid > * {
+  min-width: 0;
+}
+
 #environmentsSection {
   grid-column: 1;
   grid-row: 1 / span 2;
@@ -548,6 +560,15 @@ h3 {
   border-radius: 16px;
   background: linear-gradient(180deg, rgba(10, 17, 32, 0.75), rgba(7, 12, 24, 0.85));
   padding: 1.1rem;
+  min-width: 0;
+  position: relative;
+  z-index: 1;
+}
+
+.results {
+  max-height: 70vh;
+  overflow: auto;
+  padding-right: 4px;
 }
 
 .builder-view.hidden {
