@@ -366,7 +366,8 @@
     state.lastCompose = data;
     els.generatedCurl.textContent = data.curl || "-";
     els.builderWarnings.textContent = (data.warnings || []).join(" | ");
-    setBanner((data.warnings || []).length ? data.warnings.join(" | ") : "Curl gerado com sucesso.", (data.warnings || []).length ? "error" : "success");
+    // Avisos sao informativos (amarelo); apenas falhas reais sao vermelhas.
+    setBanner((data.warnings || []).length ? data.warnings.join(" | ") : "Curl gerado com sucesso.", (data.warnings || []).length ? "info" : "success");
   }
 
   function renderTestResult(data) {
