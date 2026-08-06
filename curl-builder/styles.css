@@ -168,7 +168,6 @@ label {
   margin: 0 auto;
   padding: 1.4rem;
   min-width: 0;
-  overflow: hidden;
 }
 
 /* ---------- topbar ---------- */
@@ -179,7 +178,6 @@ label {
   padding: 1.5rem;
   position: relative;
   min-width: 0;
-  overflow: hidden;
 }
 
 .eyebrow {
@@ -189,8 +187,6 @@ label {
   font-size: 0.68rem;
   font-weight: 700;
   margin-bottom: 0.55rem;
-  min-width: 0;
-  overflow: hidden;
 }
 
 h1,
@@ -275,7 +271,6 @@ h3 {
   border-radius: var(--radius);
   backdrop-filter: blur(14px);
   min-width: 0;
-  overflow: hidden;
 }
 
 /* ---------- banner ---------- */
@@ -290,7 +285,6 @@ h3 {
   border-radius: var(--radius-sm);
   font-size: 0.92rem;
   min-width: 0;
-  overflow: hidden;
 }
 
 .banner::before {
@@ -340,7 +334,6 @@ h3 {
   position: relative;
   z-index: 0;
   min-width: 0;
-  overflow: hidden;
 }
 
 .nav a {
@@ -394,7 +387,6 @@ h3 {
   padding: 1.25rem;
   scroll-margin-top: 4.6rem;
   min-width: 0;
-  overflow: hidden;
 }
 
 .section.wide {
@@ -586,7 +578,6 @@ h3 {
   border-radius: var(--radius-sm);
   padding: 0.6rem 0.8rem;
   min-width: 0;
-  overflow: hidden;
 }
 
 /* ---------- builder ---------- */
@@ -637,7 +628,6 @@ h3 {
 
 .builder-title > div {
   min-width: 0;
-  overflow: hidden;
 }
 
 .builder-title h3 {
@@ -698,7 +688,6 @@ h3 {
   text-align: center;
   font-size: 0.95rem;
   min-width: 0;
-  overflow: hidden;
 }
 
 .empty-state::before {
