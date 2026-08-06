@@ -1,5 +1,6 @@
 import http from "node:http";
-import { readFile, writeFile } from "node:fs/promises";
+import { readFileSync } from "node:fs";
+import { readFile, writeFile, mkdir } from "node:fs/promises";
 import { fileURLToPath } from "node:url";
 import path from "node:path";
 import { spawn } from "node:child_process";
@@ -7,6 +8,35 @@ import { catalog as seedCatalog } from "../data/catalog.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
+
+// Carrega o .env manualmente (se existir) para nao depender da flag --env-file,
+// que quebra em ambientes como EasyPanel/Nixpacks quando o arquivo nao existe.
+// Variaveis ja definidas no ambiente (container) tem prioridade.
+function loadEnvFile() {
+  const candidates = [
+    path.join(process.cwd(), ".env"),
+    path.join(__dirname, "..", ".env"),
+    path.join(__dirname, ".env")
+  ];
+  for (const filePath of candidates) {
+    let raw = "";
+    try {
+      raw = readFileSync(filePath, "utf8");
+    } catch {
+      continue;
+    }
+    for (const line of raw.split(/\r?\n/)) {
+      const match = line.match(/^\s*([A-Za-z_][A-Za-z0-9_]*)\s*=\s*(.*)\s*$/);
+      if (!match) continue;
+      const key = match[1];
+      if (process.env[key] === undefined) {
+        process.env[key] = match[2].replace(/^["']|["']$/g, "");
+      }
+    }
+    break;
+  }
+}
+loadEnvFile();
 
 const PORT = Number(process.env.PORT || 3020);
 const HOST = process.env.HOST || "0.0.0.0";
@@ -100,6 +130,7 @@ async function loadLocalRuntimeState() {
 
 async function persistLocalRuntimeState() {
   try {
+    await mkdir(path.dirname(LOCAL_RUNTIME_STATE_FILE), { recursive: true });
     await writeFile(LOCAL_RUNTIME_STATE_FILE, JSON.stringify(readRuntimeStateSnapshot(), null, 2), "utf8");
   } catch {
     // Persistencia local eh best-effort.

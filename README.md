@@ -47,19 +47,20 @@ Sem Supabase configurado, o app usa persistencia local em arquivo para manter am
 
 ## EasyPanel local
 
-Use o `Dockerfile` do projeto como build method.
+Use o `Dockerfile` do projeto como build method (Nixpacks tambem funciona, pois o `npm start` nao depende mais do arquivo `.env`).
 
-Variaveis recomendadas:
+Variaveis recomendadas no painel:
 
 - `HOST=0.0.0.0`
 - `PORT=3020`
-- `RUNTIME_STATE_FILE=/app/data/runtime-state.json`
-- `SUPABASE_URL=...`
+- `SUPABASE_URL=https://cvujoawdmstajhmrqycq.supabase.co`
 - `SUPABASE_ANON_KEY=...`
 - `SUPABASE_SERVICE_ROLE_KEY=...`
 
+Mapeie a porta publica do site para a porta **3020** do container.
+
 Monte um volume no caminho:
 
-- `/app/data`
+- `/app/data/state`
 
-Isso preserva ambientes e historico entre recriacoes do container.
+Isso preserva ambientes e historico entre recriacoes do container **sem esconder o codigo** (`/app/data` contem o catalogo seed; o volume deve ir em `/app/data/state`).

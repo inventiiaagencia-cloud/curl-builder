@@ -5,6 +5,6 @@
   "type": "module",
   "scripts": {
     "prestart": "npm install --no-audit --no-fund",
-    "start": "node --env-file=.env curl-builder/server.js"
+    "start": "node curl-builder/server.js"
   }
 }
