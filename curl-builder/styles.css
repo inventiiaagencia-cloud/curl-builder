@@ -167,6 +167,8 @@ label {
   max-width: 1560px;
   margin: 0 auto;
   padding: 1.4rem;
+  min-width: 0;
+  overflow: hidden;
 }
 
 /* ---------- topbar ---------- */
@@ -176,6 +178,8 @@ label {
   gap: 1.2rem;
   padding: 1.5rem;
   position: relative;
+  min-width: 0;
+  overflow: hidden;
 }
 
 .eyebrow {
@@ -185,6 +189,8 @@ label {
   font-size: 0.68rem;
   font-weight: 700;
   margin-bottom: 0.55rem;
+  min-width: 0;
+  overflow: hidden;
 }
 
 h1,
@@ -213,6 +219,8 @@ h3 {
 
 .subtle {
   color: var(--muted);
+  overflow-wrap: anywhere;
+  word-break: break-word;
 }
 
 .topbar-stats {
@@ -220,6 +228,7 @@ h3 {
   grid-template-columns: repeat(3, 1fr);
   gap: 0.7rem;
   align-self: center;
+  min-width: 0;
 }
 
 .stat {
@@ -229,6 +238,8 @@ h3 {
   background: rgba(255, 255, 255, 0.03);
   text-align: center;
   transition: border-color 0.2s ease, transform 0.2s ease;
+  min-width: 0;
+  overflow: hidden;
 }
 
 .stat:hover {
@@ -263,6 +274,8 @@ h3 {
   box-shadow: var(--shadow);
   border-radius: var(--radius);
   backdrop-filter: blur(14px);
+  min-width: 0;
+  overflow: hidden;
 }
 
 /* ---------- banner ---------- */
@@ -276,6 +289,8 @@ h3 {
   border-left: 3px solid var(--line-strong);
   border-radius: var(--radius-sm);
   font-size: 0.92rem;
+  min-width: 0;
+  overflow: hidden;
 }
 
 .banner::before {
@@ -324,6 +339,8 @@ h3 {
   flex-wrap: wrap;
   position: relative;
   z-index: 0;
+  min-width: 0;
+  overflow: hidden;
 }
 
 .nav a {
@@ -376,10 +393,13 @@ h3 {
 .section {
   padding: 1.25rem;
   scroll-margin-top: 4.6rem;
+  min-width: 0;
+  overflow: hidden;
 }
 
 .section.wide {
-  overflow: hidden;
+  overflow-x: auto;
+  overflow-y: visible;
 }
 
 .section-head {
@@ -388,10 +408,12 @@ h3 {
   justify-content: space-between;
   gap: 1rem;
   margin-bottom: 1.1rem;
+  min-width: 0;
 }
 
 .section-head .eyebrow {
   margin-bottom: 0.35rem;
+  min-width: 0;
 }
 
 /* ---------- environments (sidebar) ---------- */
@@ -399,6 +421,7 @@ h3 {
   display: grid;
   grid-template-columns: 1fr;
   gap: 1rem;
+  min-width: 0;
 }
 
 .list,
@@ -407,12 +430,14 @@ h3 {
   display: grid;
   gap: 0.65rem;
   align-content: start;
+  min-width: 0;
 }
 
 .list {
   max-height: 300px;
   overflow: auto;
   padding-right: 3px;
+  min-width: 0;
 }
 
 .list-item,
@@ -423,17 +448,24 @@ h3 {
   border-radius: 13px;
   padding: 0.85rem;
   transition: border-color 0.18s ease, transform 0.18s ease, background 0.18s ease;
+  min-width: 0;
+  overflow: hidden;
 }
 
 .list-item {
   cursor: pointer;
 }
 
-.list-item:hover,
-.result-item:hover {
+.list-item:hover {
   border-color: var(--line-strong);
   background: rgba(125, 211, 252, 0.06);
   transform: translateX(3px);
+}
+
+.result-item:hover {
+  border-color: var(--line-strong);
+  background: rgba(125, 211, 252, 0.06);
+  transform: translateY(-2px);
 }
 
 .result-item {
@@ -444,23 +476,24 @@ h3 {
   cursor: pointer;
   background: var(--panel-3);
   border-radius: 13px;
+  overflow: hidden;
 }
 
-.result-item:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 10px 24px rgba(2, 8, 20, 0.45);
-}
+
 
 .item-head {
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
   gap: 0.75rem;
+  min-width: 0;
 }
 
 .item-head strong {
   min-width: 0;
   overflow-wrap: anywhere;
+  flex: 1;
+  min-width: 0;
 }
 
 .meta {
@@ -468,6 +501,8 @@ h3 {
   font-size: 0.86rem;
   margin-top: 0.3rem;
   line-height: 1.45;
+  overflow-wrap: anywhere;
+  word-break: break-word;
 }
 
 /* ---------- badges / chips ---------- */
@@ -506,6 +541,7 @@ h3 {
 .form {
   display: grid;
   gap: 0.85rem;
+  min-width: 0;
 }
 
 .actions,
@@ -514,6 +550,7 @@ h3 {
   display: flex;
   gap: 0.7rem;
   flex-wrap: wrap;
+  min-width: 0;
 }
 
 .label-row {
@@ -525,17 +562,20 @@ h3 {
   color: var(--muted);
   font-size: 0.86rem;
   font-weight: 500;
+  min-width: 0;
 }
 
 .kv-list {
   display: grid;
   gap: 0.55rem;
+  min-width: 0;
 }
 
 .kv-row {
   display: grid;
   grid-template-columns: 1fr 1fr auto;
   gap: 0.55rem;
+  min-width: 0;
 }
 
 .form-status {
@@ -545,6 +585,8 @@ h3 {
   border: 1px dashed var(--line);
   border-radius: var(--radius-sm);
   padding: 0.6rem 0.8rem;
+  min-width: 0;
+  overflow: hidden;
 }
 
 /* ---------- builder ---------- */
@@ -563,12 +605,19 @@ h3 {
   min-width: 0;
   position: relative;
   z-index: 1;
+  overflow: hidden;
 }
 
 .results {
   max-height: 70vh;
   overflow: auto;
   padding-right: 4px;
+  min-width: 0;
+}
+
+.builder-view {
+  min-width: 0;
+  overflow: hidden;
 }
 
 .builder-view.hidden {
@@ -583,10 +632,12 @@ h3 {
   margin-bottom: 1.1rem;
   padding-bottom: 1rem;
   border-bottom: 1px solid var(--line);
+  min-width: 0;
 }
 
 .builder-title > div {
   min-width: 0;
+  overflow: hidden;
 }
 
 .builder-title h3 {
@@ -597,6 +648,7 @@ h3 {
 .builder-params {
   display: grid;
   gap: 0.65rem;
+  min-width: 0;
 }
 
 .param-row {
@@ -604,6 +656,7 @@ h3 {
   grid-template-columns: 0.55fr 1fr;
   gap: 0.7rem;
   align-items: end;
+  min-width: 0;
 }
 
 .param-row label {
@@ -623,6 +676,8 @@ h3 {
   font-size: 0.82rem;
   line-height: 1.55;
   color: #cfe3f7;
+  min-width: 0;
+  overflow-wrap: anywhere;
 }
 
 .code.response {
@@ -634,6 +689,7 @@ h3 {
   margin-top: 1.1rem;
   display: grid;
   gap: 0.8rem;
+  min-width: 0;
 }
 
 .empty-state {
@@ -641,6 +697,8 @@ h3 {
   padding: 2rem 0.6rem;
   text-align: center;
   font-size: 0.95rem;
+  min-width: 0;
+  overflow: hidden;
 }
 
 .empty-state::before {
@@ -655,6 +713,8 @@ h3 {
 .history-item {
   display: grid;
   gap: 0.45rem;
+  min-width: 0;
+  overflow: hidden;
 }
 
 .history-item:hover {
@@ -667,12 +727,14 @@ h3 {
   gap: 1rem;
   align-items: center;
   flex-wrap: wrap;
+  min-width: 0;
 }
 
 .chips {
   display: flex;
   gap: 0.5rem;
   flex-wrap: wrap;
+  min-width: 0;
 }
 
 /* ---------- scrollbar ---------- */
