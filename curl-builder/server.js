@@ -47,7 +47,11 @@ const DOCS_BASE_URL = "https://docs.evolutionfoundation.com.br";
 const PRODUCTS = [
   { value: "evolution_api", label: "Evolution API" },
   { value: "evo_go", label: "EVO-GO" },
-  { value: "evo_crm", label: "EVO CRM" }
+  { value: "evo_crm", label: "EVO CRM" },
+  { value: "evo_auth", label: "EVO Auth" },
+  { value: "evo_core", label: "EVO Core" },
+  { value: "evo_knowledge", label: "EVO Knowledge" },
+  { value: "evo_processor", label: "EVO Processor" }
 ];
 
 const PRODUCT_LABELS = Object.fromEntries(PRODUCTS.map((item) => [item.value, item.label]));
@@ -56,13 +60,16 @@ const HISTORY_TABLE_CANDIDATES = ["curl_history"];
 const OFFICIAL_PRODUCT_PREFIXES = [
   { match: /\/Evolution-API\//i, product: "evolution_api" },
   { match: /\/Evolution-Go\//i, product: "evo_go" },
-  { match: /\/EvoAI-(CRM|Core|Processor|Knowledge)-Service\//i, product: "evo_crm" },
-  { match: /\/Evo-Auth-Service\//i, product: "evo_crm" }
+  { match: /\/EvoAI-CRM-Service\//i, product: "evo_crm" },
+  { match: /\/Evo-Auth-Service\//i, product: "evo_auth" },
+  { match: /\/EvoAI-Core-Service\//i, product: "evo_core" },
+  { match: /\/EvoAI-Knowledge-Service\//i, product: "evo_knowledge" },
+  { match: /\/EvoAI-Processor-Service\//i, product: "evo_processor" }
 ];
 const LOCAL_RUNTIME_STATE_FILE = resolveRuntimeStateFile();
 const OFFICIAL_CATALOG_CACHE_FILE = path.join(__dirname, ".official-catalog-cache.json");
 const OFFICIAL_CATALOG_CACHE_TTL_MS = 24 * 60 * 60 * 1000; // 24h
-const OFFICIAL_CATALOG_SYNC_BUDGET_MS = 10000; // orcamento total de sincronizacao a frio
+const OFFICIAL_CATALOG_SYNC_BUDGET_MS = 60000; // 60 segundos para buscar todos os specs
 const OFFICIAL_CATALOG_FETCH_TIMEOUT_MS = 10000;
 const OFFICIAL_CATALOG_CONCURRENCY = 6;
 
@@ -81,6 +88,10 @@ function normalizeProduct(value) {
   if (v === "evolution api" || v === "evolution_api") return "evolution_api";
   if (v === "evolution go" || v === "evo-go" || v === "evo go" || v === "evo_go") return "evo_go";
   if (v === "evolution crm" || v === "evo crm" || v === "evo_crm") return "evo_crm";
+  if (v === "evo auth" || v === "evo-auth" || v === "evo_auth") return "evo_auth";
+  if (v === "evo core" || v === "evo-core" || v === "evo_core") return "evo_core";
+  if (v === "evo knowledge" || v === "evo-knowledge" || v === "evo_knowledge") return "evo_knowledge";
+  if (v === "evo processor" || v === "evo-processor" || v === "evo_processor") return "evo_processor";
   return v;
 }
 
