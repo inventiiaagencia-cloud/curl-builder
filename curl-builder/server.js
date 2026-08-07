@@ -18,10 +18,12 @@ function loadEnvFile() {
     path.join(__dirname, "..", ".env"),
     path.join(__dirname, ".env")
   ];
+  let loaded = false;
   for (const filePath of candidates) {
     let raw = "";
     try {
       raw = readFileSync(filePath, "utf8");
+      console.log(`[ENV] Carregando .env de: ${filePath}`);
     } catch {
       continue;
     }
@@ -31,17 +33,28 @@ function loadEnvFile() {
       const key = match[1];
       if (process.env[key] === undefined) {
         process.env[key] = match[2].replace(/^["']|["']$/g, "");
+        loaded = true;
       }
     }
     break;
   }
+  if (!loaded) {
+    console.log("[ENV] Nenhum arquivo .env encontrado. Usando variaveis de ambiente do sistema.");
+  }
 }
 loadEnvFile();
 
+// Le as variaveis DEPOIS de loadEnvFile() para garantir que o .env foi processado
 const PORT = Number(process.env.PORT || 3020);
 const HOST = process.env.HOST || "0.0.0.0";
 const SUPABASE_URL = String(process.env.SUPABASE_URL || "").replace(/\/$/, "");
 const SUPABASE_KEY = String(process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_ANON_KEY || "");
+
+// Debug: mostra variaveis de ambiente carregadas
+console.log("[ENV] PORT:", PORT);
+console.log("[ENV] HOST:", HOST);
+console.log("[ENV] SUPABASE_URL:", SUPABASE_URL ? "configurado" : "NAO CONFIGURADO");
+console.log("[ENV] SUPABASE_KEY:", SUPABASE_KEY ? "configurado" : "NAO CONFIGURADO");
 const DOCS_BASE_URL = "https://docs.evolutionfoundation.com.br";
 
 const PRODUCTS = [
