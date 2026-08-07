@@ -1519,6 +1519,23 @@ const server = http.createServer(async (req, res) => {
     if (req.method === "GET" && pathname === "/app.js") return sendFile(res, assetPath("app.js"), "application/javascript; charset=utf-8");
     if (req.method === "GET" && pathname === "/styles.css") return sendFile(res, assetPath("styles.css"), "text/css; charset=utf-8");
     if (req.method === "GET" && pathname === "/health") return sendJson(res, 200, { ok: true, port: PORT, configured: hasSupabaseConfig() });
+    if (req.method === "GET" && pathname === "/debug") return sendJson(res, 200, {
+      ok: true,
+      port: PORT,
+      host: HOST,
+      configured: hasSupabaseConfig(),
+      env: {
+        SUPABASE_URL: SUPABASE_URL ? "configurado (tamanho: " + SUPABASE_URL.length + ")" : "NAO CONFIGURADO",
+        SUPABASE_KEY: SUPABASE_KEY ? "configurado (tamanho: " + SUPABASE_KEY.length + ")" : "NAO CONFIGURADO",
+        PORT: PORT,
+        HOST: HOST,
+        RUNTIME_STATE_FILE: process.env.RUNTIME_STATE_FILE || "nao definido"
+      },
+      nodeVersion: process.version,
+      platform: process.platform,
+      cwd: process.cwd(),
+      dirname: __dirname
+    });
     if (req.method === "GET" && pathname === "/api/bootstrap") return handleBootstrap(req, res);
     if (req.method === "POST" && pathname === "/api/environments") return handleCreateEnvironment(req, res);
     if (req.method === "PATCH" && pathname.startsWith("/api/environments/")) return handleUpdateEnvironment(req, res, pathname.split("/").pop());

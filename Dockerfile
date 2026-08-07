@@ -2,7 +2,11 @@ FROM node:20-alpine
 
 WORKDIR /app
 
+# Instala dependencias primeiro (melhor cache do Docker)
 COPY package.json ./
+RUN npm install --no-audit --no-fund 2>/dev/null || true
+
+# Copia o codigo
 COPY curl-builder ./curl-builder
 COPY data ./data
 
